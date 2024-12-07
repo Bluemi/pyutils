@@ -11,7 +11,7 @@ def main():
     print(table)
 
 
-class Color(enum.Enum):
+class _Color(enum.Enum):
     RED = '\033[91m'
     GREEN = '\033[92m'
     BLUE = '\033[94m'
@@ -24,41 +24,41 @@ class Color(enum.Enum):
 
 
 class Effect:
-    def __init__(self, color: Color, value):
+    def __init__(self, color: _Color, value):
         self.color = color
         self.value = value
 
     @staticmethod
     def red(value: Any):
-        return Effect(Color.RED, value)
+        return Effect(_Color.RED, value)
 
     @staticmethod
     def green(value: Any):
-        return Effect(Color.GREEN, value)
+        return Effect(_Color.GREEN, value)
 
     @staticmethod
     def blue(value: Any):
-        return Effect(Color.BLUE, value)
+        return Effect(_Color.BLUE, value)
 
     @staticmethod
     def magenta(value: Any):
-        return Effect(Color.MAGENTA, value)
+        return Effect(_Color.MAGENTA, value)
 
     @staticmethod
     def cyan(value: Any):
-        return Effect(Color.CYAN, value)
+        return Effect(_Color.CYAN, value)
 
     @staticmethod
     def yellow(value: Any):
-        return Effect(Color.YELLOW, value)
+        return Effect(_Color.YELLOW, value)
 
     @staticmethod
     def bold(value: Any):
-        return Effect(Color.BOLD, value)
+        return Effect(_Color.BOLD, value)
 
     @staticmethod
     def underline(value: Any):
-        return Effect(Color.UNDERLINE, value)
+        return Effect(_Color.UNDERLINE, value)
     
 
 class Table:
@@ -148,7 +148,7 @@ class StringFormatter:
         str_content, len_content = self(effect.value, longest_float_hint)
         if ignore_effects:
             return str_content, len_content
-        return effect.color.value + str_content + Color.ENDC.value, len_content
+        return effect.color.value + str_content + _Color.ENDC.value, len_content
 
 
 if __name__ == '__main__':
