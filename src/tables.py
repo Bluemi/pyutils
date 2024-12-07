@@ -3,11 +3,11 @@ from typing import List, Dict, Any, Sequence, Callable, Tuple
 
 
 def main():
-    table = Table(('A', 'b', 'c'), header_effect=Effect.blue)
-    table.line(A=Effect.green(3.141), b=Effect.yellow('hello'))
+    table = Table(('A', 'b', 'c'), header_effect=Effect.underline)
+    table.line(A=3.141, b=Effect.yellow('hello'))
     table.line(A=Effect.cyan(202.71828182), b=Effect.red('world'))
     table.line(A=Effect.bold(Effect.magenta(2.1)), c=Effect.underline('blabla'))
-    table.line(A='long string', b='something')
+    table.line(A=Effect.green('long string'), b='something')
     print(table)
 
 
@@ -89,7 +89,7 @@ class Table:
             for header, value in line.items():
                 str_len = self._string_formatter(value, 0)[1]
                 column_width[header] = max(column_width[header], str_len)
-                if isinstance(value, float):
+                if Table.has_value_type(value, float):
                     longest_float[header] = max(longest_float[header], str_len)
 
         header_line = sep.join(
@@ -117,6 +117,12 @@ class Table:
     @staticmethod
     def ljust(value: str, current_length: int, length: int):
         return value + ' ' * (length - current_length)
+
+    @staticmethod
+    def has_value_type(value, t):
+        while isinstance(value, Effect):
+            value = value.value
+        return isinstance(value, t)
 
 
 class StringFormatter:
