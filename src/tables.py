@@ -3,11 +3,11 @@ from typing import List, Dict, Any, Sequence, Callable, Tuple
 
 
 def main():
-    table = Table(('A', 'b', 'c'), header_effect=Effect.underline)
-    table.line(A=3.141, b=Effect.yellow('hello'))
-    table.line(A=Effect.cyan(202.71828182), b=Effect.red('world'))
-    table.line(A=Effect.bold(Effect.magenta(2.1)), c=Effect.underline('blabla'))
-    table.line(A=Effect.green('long string'), b='something')
+    table = Table(('A', 'Header with more words', 'c'), header_effect=Effect.underline)
+    table.line(A=3.141, c=Effect.yellow('hello'))
+    table.line(A=Effect.cyan(202.71828182), Header_with_more_words=Effect.red('world'))
+    table.line(A=Effect.bold(Effect.magenta(2.1)), c=Effect.blue(Effect.underline('blabla')))
+    table.line(A=Effect.green('long string'), Header_with_more_words='something')
     print(table)
 
 
