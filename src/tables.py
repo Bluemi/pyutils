@@ -6,9 +6,9 @@ def main():
     table = Table(('A', 'Header with more words', 'c'), header_effect=Effect.underline)
     table.line(A=3.141, c=Effect.yellow('hello'))
     table.line(A=Effect.cyan(202.71828182), Header_with_more_words=Effect.red(1234567))
-    table.line(A=Effect.bold(Effect.magenta(2.1)), c=Effect.blue(Effect.underline('blabla')))
+    table.line(a=Effect.bold(Effect.magenta(2.1)), c=Effect.blue(Effect.underline('blabla')))
     table.line(A=Effect.green('long string'), Header_with_more_words=32)
-    table.line(A=Effect.green(12345), Header_with_more_words='something')
+    table.line(a=Effect.green(12345), heaDer_wIth_MORe_woRDs='something')
     print(table)
 
 
@@ -65,8 +65,9 @@ class Effect:
 class Table:
     def __init__(
             self, headers: Sequence[Any], float_precision: int = 3, column_space: int = 2,
-            header_effect: Callable[[Any], Effect] | None = None
+            header_effect: Callable[[Any], Effect] | None = None, lower_keys: bool = True
     ):
+        self._lower_keys = lower_keys
         if header_effect is not None:
             headers = [header_effect(h) for h in headers]
         self._string_formatter = StringFormatter(float_precision=float_precision)
@@ -76,11 +77,12 @@ class Table:
         self._column_space = column_space
 
     def line(self, **kwargs):
-        for key in kwargs:
+        normed_args = {self._norm_header(k): v for k, v in kwargs.items()}
+        for key in normed_args:
             if key not in self._normed_headers:
                 raise KeyError(f'Add value for header "{key}", but this header does not exist. '
                                f'Valid headers are: {', '.join(self._normed_headers)}')
-        self._lines.append(kwargs)
+        self._lines.append(normed_args)
 
     def __repr__(self):
         column_width = {nh: h[1] for nh, h in zip(self._normed_headers, self._headers)}
@@ -116,7 +118,10 @@ class Table:
 
     def _norm_header(self, header):
         header, _header_len = self._string_formatter(header, 0, 0, ignore_effects=True)
-        return header.replace(' ', '_')
+        header = header.replace(' ', '_')
+        if self._lower_keys:
+            header = header.lower()
+        return header
 
     @staticmethod
     def ljust(value: str, current_length: int, length: int):
@@ -137,13 +142,28 @@ class StringFormatter:
             int: StringFormatter._format_int,
             Effect: self._format_effect
         }
+        self._np = None
+        try:
+            import numpy as np
+            self._np = np
+        except ImportError:
+            pass
 
     def __call__(self, value, longest_float_hint: int, longest_int_hint: int, ignore_effects=False):
+        value = self._normalize_numpy_types(value)
         formatter = self.formatters.get(type(value))
         if formatter is not None:
             return formatter(value, longest_float_hint, longest_int_hint, ignore_effects)
         str_value = str(value)
         return str_value, len(str_value)
+
+    def _normalize_numpy_types(self, value):
+        if self._np is not None:
+            if self._np.issubdtype(type(value), self._np.floating):
+                return float(value)
+            if self._np.issubdtype(type(value), self._np.integer):
+                return int(value)
+        return value
 
     def _format_float(self, value: float, longest_float_hint: int, _longest_int_hint: int, _ignore_effects: bool):
         str_value = self._float_fmt_string.format(value).rjust(longest_float_hint)
